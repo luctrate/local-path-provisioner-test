@@ -27,9 +27,11 @@ jobs:
 
     - name: Verify XFS quota kernel support
       run: |
-        cat /proc/filesystems | grep xfs
+        # Load XFS module if not already loaded
+        sudo modprobe xfs || true
+        cat /proc/filesystems | grep -q xfs && echo "XFS filesystem support: OK" || echo "XFS not in /proc/filesystems (will load on mount)"
         # Kernel config check (informational)
-        grep -i xfs_quota /boot/config-$(uname -r) || true
+        grep -i xfs_quota /boot/config-$(uname -r) || echo "No /boot/config found (normal for cloud kernels)"
 
     - name: Create loopback XFS filesystem
       run: |
